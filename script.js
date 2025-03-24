@@ -28,14 +28,58 @@ window.addEventListener('scroll', () => {
     lastScroll = currentScroll;
 });
 
-// Mobile Navigation Toggle
-const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
-const primaryNavigation = document.querySelector('.primary-navigation');
+// Mobile Navigation
+document.addEventListener('DOMContentLoaded', function() {
+    const navToggle = document.querySelector('.mobile-nav-toggle');
+    const primaryNav = document.querySelector('.primary-navigation');
+    
+    if (navToggle && primaryNav) {
+        // Função para fechar o menu
+        const closeMenu = () => {
+            primaryNav.setAttribute('data-visible', 'false');
+            navToggle.setAttribute('aria-expanded', 'false');
+            const icon = navToggle.querySelector('i');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        };
 
-mobileNavToggle.addEventListener('click', () => {
-    const isExpanded = mobileNavToggle.getAttribute('aria-expanded') === 'true';
-    mobileNavToggle.setAttribute('aria-expanded', !isExpanded);
-    primaryNavigation.classList.toggle('active');
+        // Toggle menu ao clicar no botão
+        navToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isVisible = primaryNav.getAttribute('data-visible') === 'true';
+            primaryNav.setAttribute('data-visible', !isVisible);
+            navToggle.setAttribute('aria-expanded', !isVisible);
+            
+            const icon = this.querySelector('i');
+            if (isVisible) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            }
+        });
+        
+        // Fechar menu ao clicar fora
+        document.addEventListener('click', function(e) {
+            if (!primaryNav.contains(e.target) && !navToggle.contains(e.target)) {
+                closeMenu();
+            }
+        });
+        
+        // Fechar menu ao clicar em um link
+        const navLinks = primaryNav.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', closeMenu);
+        });
+
+        // Fechar menu ao redimensionar a janela
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMenu();
+            }
+        });
+    }
 });
 
 // Smooth Scroll para links internos
@@ -58,35 +102,37 @@ const testimonials = document.querySelectorAll('.testimonial');
 const dots = document.querySelectorAll('.dot');
 let currentTestimonial = 0;
 
-function showTestimonial(index) {
-    testimonials.forEach(testimonial => {
-        testimonial.style.display = 'none';
-    });
-    
-    dots.forEach(dot => {
-        dot.classList.remove('active');
-    });
-    
-    testimonials[index].style.display = 'block';
-    dots[index].classList.add('active');
-}
+if (testimonialSlider && testimonials.length > 0) {
+    function showTestimonial(index) {
+        testimonials.forEach(testimonial => {
+            testimonial.style.display = 'none';
+        });
+        
+        dots.forEach(dot => {
+            dot.classList.remove('active');
+        });
+        
+        testimonials[index].style.display = 'block';
+        dots[index].classList.add('active');
+    }
 
-// Adicionar eventos aos dots
-dots.forEach((dot, index) => {
-    dot.addEventListener('click', () => {
-        currentTestimonial = index;
+    // Adicionar eventos aos dots
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            currentTestimonial = index;
+            showTestimonial(currentTestimonial);
+        });
+    });
+
+    // Auto-play do slider
+    setInterval(() => {
+        currentTestimonial = (currentTestimonial + 1) % testimonials.length;
         showTestimonial(currentTestimonial);
-    });
-});
+    }, 5000);
 
-// Auto-play do slider
-setInterval(() => {
-    currentTestimonial = (currentTestimonial + 1) % testimonials.length;
-    showTestimonial(currentTestimonial);
-}, 5000);
-
-// Inicializar o primeiro testimonial
-showTestimonial(0);
+    // Inicializar o primeiro testimonial
+    showTestimonial(0);
+}
 
 // Adicionar classe active ao link da navegação atual
 const currentLocation = window.location.pathname;
@@ -196,52 +242,5 @@ document.addEventListener('DOMContentLoaded', function() {
             // Implement social login logic here
         });
     });
-});
-
-// Mobile Navigation
-document.addEventListener('DOMContentLoaded', function() {
-    const navToggle = document.querySelector('.mobile-nav-toggle');
-    const primaryNav = document.querySelector('.primary-navigation');
-    
-    if (navToggle && primaryNav) {
-        navToggle.addEventListener('click', function() {
-            const isVisible = primaryNav.getAttribute('data-visible') === 'true';
-            primaryNav.setAttribute('data-visible', !isVisible);
-            navToggle.setAttribute('aria-expanded', !isVisible);
-            
-            // Toggle icon between bars and times
-            const icon = this.querySelector('i');
-            if (isVisible) {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            } else {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            }
-        });
-        
-        // Close menu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!primaryNav.contains(e.target) && !navToggle.contains(e.target)) {
-                primaryNav.setAttribute('data-visible', 'false');
-                navToggle.setAttribute('aria-expanded', 'false');
-                const icon = navToggle.querySelector('i');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-        });
-        
-        // Close menu when clicking on a link
-        const navLinks = primaryNav.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                primaryNav.setAttribute('data-visible', 'false');
-                navToggle.setAttribute('aria-expanded', 'false');
-                const icon = navToggle.querySelector('i');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            });
-        });
-    }
 });
 
